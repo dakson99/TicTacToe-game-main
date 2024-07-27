@@ -6,16 +6,7 @@ const overlay = document.querySelector('.overlay');
 const winnerDiv = document.querySelector('.div__winner');
 const playAgain = document.querySelector('.btn__play__again');
 
-// display overlay / winner div
-const displayWinner = () => {
-    overlay.classList.remove('hidden');
-    winnerDiv.classList.remove('hidden');
-};
-
-// hide overlay / winner div
-const hideWinner = (element) => {
-    element.classList.add('hidden');
-};
+const messageWinner = document.querySelector('.message__winner');
 
 
 // function create Player
@@ -92,11 +83,11 @@ const gameLogic = (function () {
             const elements = subArr.map((el) => ticTacToe.getCell(el));
 
             // test for equality
-            const solution = elements.every(
+            const check = elements.every(
                 (el, i) => typeof el === 'string' && elements[i] === elements[0]
             );
 
-            return solution;
+            return check;
         }
 
         // check if the condition is met in any sub array
@@ -105,19 +96,29 @@ const gameLogic = (function () {
         return isWinner;
     };
 
+    // display overlay / winner
+    const displayWinner = (value) => {
+        overlay.classList.remove('hidden');
+        winnerDiv.classList.remove('hidden');
+        messageWinner.textContent = value;
+    };
+
+    // hide overlay / winner
+    const newGame = (element) => {
+        clear();
+        overlay.classList.add('hidden');
+        winnerDiv.classList.add('hidden');
+    };
+
     // clear the board and the dom
     const clear = function () {
         currentPlayer = player1;
-
         ticTacToe.getBoard().forEach((el, i) => ticTacToe.setCell(i, null));
-
         cells.forEach((c) => (c.textContent = ''));
-
         message.textContent = `Player X's turn`;
     };
 
     // attach event listeners to each div
-
     cells.forEach((cell, i) =>
         cell.addEventListener('click', function (e) {
             message.textContent =
@@ -135,7 +136,7 @@ const gameLogic = (function () {
 
                 //check for winner
                 if (checkWinner(winConditions)) {
-                    displayWinner();
+                    displayWinner(`${currentPlayer.getName()} wins!`);
                     clear();
                     return;
                 }
@@ -144,12 +145,15 @@ const gameLogic = (function () {
                 switchPlayer();
             }
 
+            // check for draw
             if (ticTacToe.getBoard().every((el) => typeof el === 'string')) {
-                console.log("It's a draw");
+                displayWinner("It's a draw!");
                 clear();
             }
         })
     );
+
+    playAgain.addEventListener('click', newGame);
 
     return {
         clear,
